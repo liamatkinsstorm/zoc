@@ -1,0 +1,37 @@
+/* REXX */
+
+SAY "Enter Hostname"
+PULL HostName
+SAY "Enter Domain Name"
+PULL DomainName
+SAY "Enter Admin Username"
+PULL UserName
+SAY "Enter Admin Password - lowercase only"
+PULL Password
+SAY "Enter Enable Password - lowercase only"
+PULL EnablePassword
+
+upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+lower = 'abcdefghijklmnopqrstuvwxyz'
+HostnameToLower = translate(HostName,lower,upper)
+DomainNameToLower = translate(DomainName,lower,upper)
+UserNameToLower = translate(UserName,lower,upper)
+PasswordToLower = translate(Password,lower,upper)
+EnablePasswordToLower = translate(EnablePassword,lower,upper)
+
+CALL ZocSend "conf t" ||"^M"
+CALL ZocSend "aaa new-model" ||"^M"
+CALL ZocSend "username " UserNameToLower " privilege 15 secret 0 " PasswordToLower ||"^M"
+CALL ZocSend "enable secret 0 " EnablePasswordToLower ||"^M"
+CALL ZocSend "hostname" HostnameToLower ||"^M"
+CALL ZocSend "ip domain-name" DomainNameToLower ||"^M"
+CALL ZocSend "crypto key generate rsa" ||"^M"
+CALL ZocSend "yes" ||"^M"
+CALL ZocSend "2048" ||"^M"
+CALL ZocSend "ip ssh time-out 60" ||"^M"
+CALL ZocSend "ip ssh authentication-retries 2" ||"^M"
+CALL ZocSend "line vty 0 4" ||"^M"
+CALL ZocSend "transport input ssh" ||"^M"
+CALL ZocSend "exit" ||"^M"
+CALL ZocSend "exit" ||"^M"
+CALL ZocSend "copy run start" ||"^M"
